@@ -43,7 +43,8 @@ button.alt{background:#8a8fa8}
 <script src="textquestions.js"></script>
 <script>
 const $=id=>document.getElementById(id),Q=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
-if(!Q.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Question files not found. Please upload questions.js and textquestions.js next to index.html.</p>');
+const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':''].filter(Boolean);
+if(missing.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Missing file: '+missing.join(', ')+'. Please upload it next to index.html on GitHub.</p>');
 const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
 function fill(sel,vals,fmt){sel.innerHTML=vals.map(v=>`<option value="${v}">${fmt(v)}</option>`).join('')}
 function refresh(lvl){
