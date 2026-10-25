@@ -23,7 +23,7 @@ button.alt{background:#8a8fa8}
 </style></head><body><main>
 <h1>🧮 Mental Maths – Grade 2</h1>
 <div id="menu" class="card">
- <label>Choose a grade</label><select id="grade"><option value="2">Grade 2 – Mental Maths (by term)</option><option value="2w">Grade 2 – Workbook (by unit)</option><option value="3">Grade 3 – Workbook (by unit)</option></select>
+ <label>Choose a grade</label><select id="grade"><option value="2">Grade 2 – Mental Maths (by term)</option><option value="2w">Grade 2 – Workbook (by unit)</option><option value="3">Grade 3 – Workbook (by unit)</option><option value="4">Grade 4 – Workbook (by unit)</option></select>
  <label>Choose a term</label><select id="term"></select>
  <label>Choose a week</label><select id="week"></select>
  <label>Choose an activity</label><select id="act"></select>
@@ -45,12 +45,14 @@ button.alt{background:#8a8fa8}
 <script src="textquestions.js"></script>
 <script src="grade3.js"></script>
 <script src="grade2wb.js"></script>
+<script src="grade4.js"></script>
 <script>
 const $=id=>document.getElementById(id);let Q=[];
 const G2=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
 const G3=typeof QUESTIONS3!='undefined'?QUESTIONS3:[];
+const G4=typeof QUESTIONS4!='undefined'?QUESTIONS4:[];
 const G2W=typeof QUESTIONS2W!='undefined'?QUESTIONS2W:[];
-const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':'',typeof QUESTIONS3=='undefined'?'grade3.js':'',typeof QUESTIONS2W=='undefined'?'grade2wb.js':''].filter(Boolean);
+const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':'',typeof QUESTIONS3=='undefined'?'grade3.js':'',typeof QUESTIONS2W=='undefined'?'grade2wb.js':'',typeof QUESTIONS4=='undefined'?'grade4.js':''].filter(Boolean);
 if(missing.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Missing file: '+missing.join(', ')+'. Please upload it next to index.html on GitHub.</p>');
 const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
 const g3=()=>$('grade').value!=2;
@@ -62,7 +64,7 @@ function refresh(lvl){
  const as=[...new Map(Q.filter(q=>q.t==t&&q.w==w).map(q=>[q.a,q.n])).entries()];
  $('act').innerHTML=as.map(([a,n])=>`<option value="${a}">${g3()?'Exercise '+a+' – ':'Activity '+a+' – '}${n}</option>`).join('');
 }
-function setGrade(){const g=$('grade').value;Q=g=='3'?G3:g=='2w'?G2W:G2;
+function setGrade(){const g=$('grade').value;Q=g=='3'?G3:g=='4'?G4:g=='2w'?G2W:G2;
  fill($('term'),uniq(Q.map(q=>q.t)),v=>g3()?'Unit '+v+' – '+Q.find(q=>q.t==v).tn:v==5?'⭐ Extra: words & facts':'Term '+v);refresh(0)}
 $('grade').onchange=setGrade;setGrade();
 $('term').onchange=()=>refresh(0);$('week').onchange=()=>refresh(1);
@@ -79,7 +81,7 @@ function ask(){const q=set[i];$('count').textContent=`Question ${i+1} of ${set.l
  $('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
  $('check').classList.remove('hide');$('next').classList.add('hide');$('ans').focus()}
 function dots(n,e){return n>0&&n<=40?`<div class="dots">${e.repeat(n)}</div>`:''}
-const norm=s=>String(s).toLowerCase().replace(/[-–,]/g,' ').replace(/[^a-z0-9 \/.:]/g,'').replace(/\.+$/,'').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
+const norm=s=>String(s).toLowerCase().replace(/(^|\s)[-−–](?=\d)/g,'$1neg').replace(/[-–,]/g,' ').replace(/[^a-z0-9 \/.:]/g,'').replace(/\.+$/,'').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
 const shown=q=>q.txt?q.r[0]:q.r;
 function explain(q){
  if(q.e)return `<div class="exp">📘 ${q.e}</div>`;
@@ -97,7 +99,7 @@ function explain(q){
  else h='Do it one step at a time, from left to right:<br>'+steps.map(s=>`${s[0]} ${s[1]} ${s[2]} = <b>${s[3]}</b>`).join('<br>');
  return `<div class="exp">📘 ${h}</div>`}
 $('check').onclick=()=>{const v=$('ans').value.trim();if(v==='')return;
- const q=set[i],ok=q.txt?q.r.map(norm).includes(norm(v)):+v==q.r;res.push({q:q.q,r:shown(q),v:v,ok,txt:q.txt});
+ const q=set[i],ok=q.txt?(norm(v)!==''&&q.r.map(norm).includes(norm(v))):+v==q.r;res.push({q:q.q,r:shown(q),v:v,ok,txt:q.txt});
  $('fb').innerHTML=(ok?'<h3 class="ok">⭐ Correct! Well done!</h3>':`<h3 class="bad">Not quite. The answer is ${shown(q)}.</h3>`)+explain(q);
  $('ans').disabled=true;$('check').classList.add('hide');
  $('next').classList.remove('hide');$('next').textContent=i+1<set.length?'Next ➜':'See my score 🏆'};

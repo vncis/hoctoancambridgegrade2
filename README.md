@@ -20,3 +20,6 @@ Short-answer questions go in `textquestions.js`: `{t:1,w:1,a:1,n:"Title",q:"Ques
 
 ## Grade 2 – Workbook (by unit)
 `grade2wb.js` follows the 15 units of Cambridge Primary Mathematics Workbook 2 (sums printed in the book plus extra practice). Rebuild it with `gen_grade2_workbook.py`.
+
+## Grade 4
+`grade4.js` follows the 18 units of the Cambridge Primary Mathematics Workbook 4 (sums printed in the book plus extra practice). Rebuild it with `gen_grade4.py`.
