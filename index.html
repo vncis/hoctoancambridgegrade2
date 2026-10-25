@@ -23,7 +23,7 @@ button.alt{background:#8a8fa8}
 </style></head><body><main>
 <h1>🧮 Mental Maths – Grade 2</h1>
 <div id="menu" class="card">
- <label>Choose a grade</label><select id="grade"><option value="2">Grade 2</option><option value="3">Grade 3</option></select>
+ <label>Choose a grade</label><select id="grade"><option value="2">Grade 2 – Mental Maths (by term)</option><option value="2w">Grade 2 – Workbook (by unit)</option><option value="3">Grade 3 – Workbook (by unit)</option></select>
  <label>Choose a term</label><select id="term"></select>
  <label>Choose a week</label><select id="week"></select>
  <label>Choose an activity</label><select id="act"></select>
@@ -34,7 +34,7 @@ button.alt{background:#8a8fa8}
  <button class="alt" id="homeq" style="margin:0 0 12px;padding:8px 14px;font-size:1rem">🏠 Home</button>
  <div class="bar"><i id="prog"></i></div>
  <p id="count"></p><div class="q" id="qtext"></div>
- <input id="ans" type="number" inputmode="numeric" placeholder="Type your answer">
+ <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Type your answer">
  <button id="check">Check ✔</button><button id="next" class="hide">Next ➜</button>
  <div id="fb"></div>
 </div>
@@ -44,14 +44,16 @@ button.alt{background:#8a8fa8}
 <script src="questions.js"></script>
 <script src="textquestions.js"></script>
 <script src="grade3.js"></script>
+<script src="grade2wb.js"></script>
 <script>
 const $=id=>document.getElementById(id);let Q=[];
 const G2=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
 const G3=typeof QUESTIONS3!='undefined'?QUESTIONS3:[];
-const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':'',typeof QUESTIONS3=='undefined'?'grade3.js':''].filter(Boolean);
+const G2W=typeof QUESTIONS2W!='undefined'?QUESTIONS2W:[];
+const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':'',typeof QUESTIONS3=='undefined'?'grade3.js':'',typeof QUESTIONS2W=='undefined'?'grade2wb.js':''].filter(Boolean);
 if(missing.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Missing file: '+missing.join(', ')+'. Please upload it next to index.html on GitHub.</p>');
 const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
-const g3=()=>$('grade').value==3;
+const g3=()=>$('grade').value!=2;
 function fill(sel,vals,fmt){sel.innerHTML=vals.map(v=>`<option value="${v}">${fmt(v)}</option>`).join('')}
 function refresh(lvl){
  const t=+$('term').value;
@@ -60,7 +62,7 @@ function refresh(lvl){
  const as=[...new Map(Q.filter(q=>q.t==t&&q.w==w).map(q=>[q.a,q.n])).entries()];
  $('act').innerHTML=as.map(([a,n])=>`<option value="${a}">${g3()?'Exercise '+a+' – ':'Activity '+a+' – '}${n}</option>`).join('');
 }
-function setGrade(){Q=g3()?G3:G2;
+function setGrade(){const g=$('grade').value;Q=g=='3'?G3:g=='2w'?G2W:G2;
  fill($('term'),uniq(Q.map(q=>q.t)),v=>g3()?'Unit '+v+' – '+Q.find(q=>q.t==v).tn:v==5?'⭐ Extra: words & facts':'Term '+v);refresh(0)}
 $('grade').onchange=setGrade;setGrade();
 $('term').onchange=()=>refresh(0);$('week').onchange=()=>refresh(1);
@@ -73,7 +75,7 @@ $('start').onclick=()=>{const t=+$('term').value,w=+$('week').value,a=+$('act').
 $('mix').onclick=()=>begin(shuffle(Q).slice(0,10));
 function ask(){const q=set[i];$('count').textContent=`Question ${i+1} of ${set.length}`;
  $('prog').style.width=(i/set.length*100)+'%';$('qtext').textContent=q.txt?q.q:q.q+' = ?';$('qtext').style.fontSize=q.txt?'1.6rem':'';
- $('ans').type=q.txt?'text':'number';$('ans').placeholder=q.txt?'Type your answer in English':'Type your answer';
+ $('ans').setAttribute('inputmode',q.txt?'text':'numeric');$('ans').placeholder=q.txt?'Type your answer in English':'Type your answer';
  $('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
  $('check').classList.remove('hide');$('next').classList.add('hide');$('ans').focus()}
 function dots(n,e){return n>0&&n<=40?`<div class="dots">${e.repeat(n)}</div>`:''}
