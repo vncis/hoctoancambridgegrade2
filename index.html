@@ -30,6 +30,7 @@ button.alt{background:#8a8fa8}
  <button class="alt" id="mix">🎲 Mixed practice (10)</button>
 </div>
 <div id="quiz" class="card hide">
+ <button class="alt" id="homeq" style="margin:0 0 12px;padding:8px 14px;font-size:1rem">🏠 Home</button>
  <div class="bar"><i id="prog"></i></div>
  <p id="count"></p><div class="q" id="qtext"></div>
  <input id="ans" type="number" inputmode="numeric" placeholder="Type your answer">
@@ -37,7 +38,7 @@ button.alt{background:#8a8fa8}
  <div id="fb"></div>
 </div>
 <div id="end" class="card hide"><h2 id="score"></h2><div id="stars" class="q"></div><div id="rev" class="rev"></div>
- <button id="again">Try again 🔁</button><button class="alt" id="home">Menu</button></div>
+ <button id="again">Try again 🔁</button><button class="alt" id="home">🏠 Home</button></div>
 </main>
 <script src="questions.js"></script>
 <script src="textquestions.js"></script>
@@ -98,4 +99,5 @@ function finish(){show('end');const s=res.filter(x=>x.ok).length,n=res.length;
  $('stars').textContent=s==n?'🏆🌟🌟🌟':s>=n*.7?'🌟🌟':s>=n*.4?'🌟':'💪 Keep practising!';
  $('rev').innerHTML=res.map(x=>`<div>${x.ok?'✅':'❌'} ${x.q}${x.txt?' →':' ='} ${x.r}${x.ok?'':` <span class="bad">(you wrote ${x.v})</span>`}</div>`).join('')}
 $('again').onclick=()=>begin(shuffle(set));$('home').onclick=()=>show('menu');
+$('homeq').onclick=()=>{if(!res.length||confirm('Go back to the menu? Your answers in this quiz will be lost.'))show('menu')};
 </script></body></html>
