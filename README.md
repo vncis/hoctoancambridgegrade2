@@ -1,0 +1,16 @@
+# Mental Maths – Grade 2
+Interactive practice with automatic marking and step-by-step explanations.
+Number questions and short-answer questions (number names, days, months, shapes) are taken from the "Cambridge Mental Maths Grade 2" solutions workbook (Terms 1–4).
+
+## Run
+Open `index.html` in a browser (keep `questions.js` in the same folder).
+
+## Publish on GitHub Pages
+1. Create a repository and upload all files, `parse_text.py`, `extra_text.py`, `textquestions.js`. Term 5 in the menu is "Extra: words & facts" (questions written for this app in the same style).
+2. Settings → Pages → Branch: `main` / root → Save.
+3. Your site will be at `https://<username>.github.io/<repo>/`.
+
+## Add more questions
+Add objects to `questions.js`: `{t:Term,w:Week,a:Activity,n:"Title",q:"12 + 8",r:20}`.
+
+Short-answer questions go in `textquestions.js`: `{t:1,w:1,a:1,n:"Title",q:"Question?",r:["accepted answer","other accepted answer"],e:"Explanation"}` (answers in lower case).

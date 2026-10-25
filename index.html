@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mental Maths – Grade 2</title>
+<style>
+:root{--bg:#fff8e7;--card:#fff;--ink:#2b2b3a;--pri:#4f7cff;--ok:#2fa84f;--bad:#e5484d;--soft:#eef2ff}
+@media(prefers-color-scheme:dark){:root{--bg:#1b1d2a;--card:#272a3c;--ink:#f1f1f6;--soft:#33375200}}
+*{box-sizing:border-box}body{margin:0;font-family:"Comic Sans MS","Trebuchet MS",sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:620px;margin:0 auto;padding:16px}
+h1{text-align:center;font-size:1.7rem}
+.card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 3px 10px #0002;margin-bottom:14px}
+label{display:block;margin:10px 0 4px;font-weight:bold}
+select,input{font:inherit;font-size:1.2rem;padding:10px;border-radius:12px;border:2px solid #aab;width:100%;background:var(--card);color:var(--ink)}
+button{font:inherit;font-size:1.2rem;padding:12px 22px;border:0;border-radius:14px;background:var(--pri);color:#fff;cursor:pointer;margin-top:12px}
+button.alt{background:#8a8fa8}
+.q{font-size:2.4rem;text-align:center;margin:10px 0}
+.bar{height:12px;background:#ccd;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pri)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.exp{background:#fff3c4;color:#333;border-radius:12px;padding:12px;margin-top:12px;font-size:1.1rem;line-height:1.6}
+.dots{font-size:1.5rem;letter-spacing:2px;word-break:break-all}
+.rev div{padding:6px 0;border-bottom:1px dashed #aab}
+.hide{display:none}
+</style></head><body><main>
+<h1>🧮 Mental Maths – Grade 2</h1>
+<div id="menu" class="card">
+ <label>Choose a term</label><select id="term"></select>
+ <label>Choose a week</label><select id="week"></select>
+ <label>Choose an activity</label><select id="act"></select>
+ <button id="start">Start ▶</button>
+ <button class="alt" id="mix">🎲 Mixed practice (10)</button>
+</div>
+<div id="quiz" class="card hide">
+ <div class="bar"><i id="prog"></i></div>
+ <p id="count"></p><div class="q" id="qtext"></div>
+ <input id="ans" type="number" inputmode="numeric" placeholder="Type your answer">
+ <button id="check">Check ✔</button><button id="next" class="hide">Next ➜</button>
+ <div id="fb"></div>
+</div>
+<div id="end" class="card hide"><h2 id="score"></h2><div id="stars" class="q"></div><div id="rev" class="rev"></div>
+ <button id="again">Try again 🔁</button><button class="alt" id="home">Menu</button></div>
+</main>
+<script src="questions.js"></script>
+<script src="textquestions.js"></script>
+<script>
+const $=id=>document.getElementById(id),Q=QUESTIONS.concat(TEXTQ.map(x=>({...x,txt:1})));
+const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
+function fill(sel,vals,fmt){sel.innerHTML=vals.map(v=>`<option value="${v}">${fmt(v)}</option>`).join('')}
+function refresh(lvl){
+ const t=+$('term').value;
+ if(lvl<=0) fill($('week'),uniq(Q.filter(q=>q.t==t).map(q=>q.w)),v=>'Week '+v);
+ const w=+$('week').value;
+ const as=[...new Map(Q.filter(q=>q.t==t&&q.w==w).map(q=>[q.a,q.n])).entries()];
+ $('act').innerHTML=as.map(([a,n])=>`<option value="${a}">Activity ${a} – ${n}</option>`).join('');
+}
+fill($('term'),uniq(Q.map(q=>q.t)),v=>v==5?'⭐ Extra: words & facts':'Term '+v);refresh(0);
+$('term').onchange=()=>refresh(0);$('week').onchange=()=>refresh(1);
+let set=[],i=0,res=[];
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+function begin(list){set=list;i=0;res=[];show('quiz');ask()}
+function show(id){['menu','quiz','end'].forEach(x=>$(x).classList.toggle('hide',x!=id))}
+$('start').onclick=()=>{const t=+$('term').value,w=+$('week').value,a=+$('act').value;
+ begin(shuffle(Q.filter(q=>q.t==t&&q.w==w&&q.a==a)))};
+$('mix').onclick=()=>begin(shuffle(Q).slice(0,10));
+function ask(){const q=set[i];$('count').textContent=`Question ${i+1} of ${set.length}`;
+ $('prog').style.width=(i/set.length*100)+'%';$('qtext').textContent=q.txt?q.q:q.q+' = ?';$('qtext').style.fontSize=q.txt?'1.6rem':'';
+ $('ans').type=q.txt?'text':'number';$('ans').placeholder=q.txt?'Type your answer in English':'Type your answer';
+ $('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
+ $('check').classList.remove('hide');$('next').classList.add('hide');$('ans').focus()}
+function dots(n,e){return n>0&&n<=40?`<div class="dots">${e.repeat(n)}</div>`:''}
+const norm=s=>String(s).toLowerCase().replace(/[-–]/g,' ').replace(/[^a-z0-9 ]/g,'').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
+const shown=q=>q.txt?q.r[0]:q.r;
+function explain(q){
+ if(q.txt)return `<div class="exp">📘 ${q.e}</div>`;
+ const t=q.q.split(' ');let acc=+t[0],steps=[],ops=t.filter((_,k)=>k%2==1);
+ for(let k=1;k<t.length;k+=2){const n=+t[k+1],o=t[k],prev=acc;
+  acc=o=='+'?acc+n:o=='-'?acc-n:acc*n;steps.push([prev,o,n,acc])}
+ const [a,o,b,r]=steps[0];let h='';
+ if(ops.every(x=>x=='+')&&steps.length==1){
+  h=`<b>Adding</b> means putting groups together.${dots(a,'🔵')}${dots(b,'🟠')}Start at <b>${a}</b> and count on <b>${b}</b> more: ${a} → ${r}.<br>So ${a} + ${b} = <b>${r}</b>.`;
+  if(a%10&&b<=10&&a<=20&&a+b>10&&a<10)h+=`<br>💡 Make ten: ${a} + ${10-a} = 10, then add the other ${b-(10-a)}.`}
+ else if(ops.every(x=>x=='-')&&steps.length==1){
+  h=`<b>Subtracting</b> means taking away.${dots(a,'🍎')}Start at <b>${a}</b> and count back <b>${b}</b>: ${a} → ${r}.<br>Check it: ${r} + ${b} = ${a} ✔<br>So ${a} - ${b} = <b>${r}</b>.`}
+ else if(ops.every(x=>x=='x')&&steps.length==1){
+  h=`<b>Multiplying</b> means equal groups. ${a} groups of ${b}:<br>${Array(a).fill(b).join(' + ')} = <b>${r}</b>`}
+ else h='Do it one step at a time, from left to right:<br>'+steps.map(s=>`${s[0]} ${s[1]} ${s[2]} = <b>${s[3]}</b>`).join('<br>');
+ return `<div class="exp">📘 ${h}</div>`}
+$('check').onclick=()=>{const v=$('ans').value.trim();if(v==='')return;
+ const q=set[i],ok=q.txt?q.r.map(norm).includes(norm(v)):+v==q.r;res.push({q:q.q,r:shown(q),v:v,ok,txt:q.txt});
+ $('fb').innerHTML=(ok?'<h3 class="ok">⭐ Correct! Well done!</h3>':`<h3 class="bad">Not quite. The answer is ${shown(q)}.</h3>`)+explain(q);
+ $('ans').disabled=true;$('check').classList.add('hide');
+ $('next').classList.remove('hide');$('next').textContent=i+1<set.length?'Next ➜':'See my score 🏆'};
+$('ans').onkeydown=e=>{if(e.key=='Enter')($('check').classList.contains('hide')?$('next'):$('check')).click()};
+$('next').onclick=()=>{i++;i<set.length?ask():finish()};
+function finish(){show('end');const s=res.filter(x=>x.ok).length,n=res.length;
+ $('score').textContent=`Your score: ${s} / ${n}`;
+ $('stars').textContent=s==n?'🏆🌟🌟🌟':s>=n*.7?'🌟🌟':s>=n*.4?'🌟':'💪 Keep practising!';
+ $('rev').innerHTML=res.map(x=>`<div>${x.ok?'✅':'❌'} ${x.q}${x.txt?' →':' ='} ${x.r}${x.ok?'':` <span class="bad">(you wrote ${x.v})</span>`}</div>`).join('')}
+$('again').onclick=()=>begin(shuffle(set));$('home').onclick=()=>show('menu');
+</script></body></html>
