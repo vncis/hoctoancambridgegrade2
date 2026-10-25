@@ -42,7 +42,8 @@ button.alt{background:#8a8fa8}
 <script src="questions.js"></script>
 <script src="textquestions.js"></script>
 <script>
-const $=id=>document.getElementById(id),Q=QUESTIONS.concat(TEXTQ.map(x=>({...x,txt:1})));
+const $=id=>document.getElementById(id),Q=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
+if(!Q.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Question files not found. Please upload questions.js and textquestions.js next to index.html.</p>');
 const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
 function fill(sel,vals,fmt){sel.innerHTML=vals.map(v=>`<option value="${v}">${fmt(v)}</option>`).join('')}
 function refresh(lvl){
