@@ -23,6 +23,7 @@ button.alt{background:#8a8fa8}
 </style></head><body><main>
 <h1>🧮 Mental Maths – Grade 2</h1>
 <div id="menu" class="card">
+ <label>Choose a grade</label><select id="grade"><option value="2">Grade 2</option><option value="3">Grade 3</option></select>
  <label>Choose a term</label><select id="term"></select>
  <label>Choose a week</label><select id="week"></select>
  <label>Choose an activity</label><select id="act"></select>
@@ -42,20 +43,26 @@ button.alt{background:#8a8fa8}
 </main>
 <script src="questions.js"></script>
 <script src="textquestions.js"></script>
+<script src="grade3.js"></script>
 <script>
-const $=id=>document.getElementById(id),Q=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
-const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':''].filter(Boolean);
+const $=id=>document.getElementById(id);let Q=[];
+const G2=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
+const G3=typeof QUESTIONS3!='undefined'?QUESTIONS3:[];
+const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':'',typeof QUESTIONS3=='undefined'?'grade3.js':''].filter(Boolean);
 if(missing.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Missing file: '+missing.join(', ')+'. Please upload it next to index.html on GitHub.</p>');
 const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
+const g3=()=>$('grade').value==3;
 function fill(sel,vals,fmt){sel.innerHTML=vals.map(v=>`<option value="${v}">${fmt(v)}</option>`).join('')}
 function refresh(lvl){
  const t=+$('term').value;
- if(lvl<=0) fill($('week'),uniq(Q.filter(q=>q.t==t).map(q=>q.w)),v=>'Week '+v);
+ if(lvl<=0) fill($('week'),uniq(Q.filter(q=>q.t==t).map(q=>q.w)),v=>g3()?Q.find(q=>q.t==t&&q.w==v).wn:'Week '+v);
  const w=+$('week').value;
  const as=[...new Map(Q.filter(q=>q.t==t&&q.w==w).map(q=>[q.a,q.n])).entries()];
- $('act').innerHTML=as.map(([a,n])=>`<option value="${a}">Activity ${a} – ${n}</option>`).join('');
+ $('act').innerHTML=as.map(([a,n])=>`<option value="${a}">${g3()?'Exercise '+a+' – ':'Activity '+a+' – '}${n}</option>`).join('');
 }
-fill($('term'),uniq(Q.map(q=>q.t)),v=>v==5?'⭐ Extra: words & facts':'Term '+v);refresh(0);
+function setGrade(){Q=g3()?G3:G2;
+ fill($('term'),uniq(Q.map(q=>q.t)),v=>g3()?'Unit '+v+' – '+Q.find(q=>q.t==v).tn:v==5?'⭐ Extra: words & facts':'Term '+v);refresh(0)}
+$('grade').onchange=setGrade;setGrade();
 $('term').onchange=()=>refresh(0);$('week').onchange=()=>refresh(1);
 let set=[],i=0,res=[];
 const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
@@ -70,10 +77,10 @@ function ask(){const q=set[i];$('count').textContent=`Question ${i+1} of ${set.l
  $('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
  $('check').classList.remove('hide');$('next').classList.add('hide');$('ans').focus()}
 function dots(n,e){return n>0&&n<=40?`<div class="dots">${e.repeat(n)}</div>`:''}
-const norm=s=>String(s).toLowerCase().replace(/[-–]/g,' ').replace(/[^a-z0-9 ]/g,'').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
+const norm=s=>String(s).toLowerCase().replace(/[-–,]/g,' ').replace(/[^a-z0-9 \/.:]/g,'').replace(/\.+$/,'').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
 const shown=q=>q.txt?q.r[0]:q.r;
 function explain(q){
- if(q.txt)return `<div class="exp">📘 ${q.e}</div>`;
+ if(q.e)return `<div class="exp">📘 ${q.e}</div>`;
  const t=q.q.split(' ');let acc=+t[0],steps=[],ops=t.filter((_,k)=>k%2==1);
  for(let k=1;k<t.length;k+=2){const n=+t[k+1],o=t[k],prev=acc;
   acc=o=='+'?acc+n:o=='-'?acc-n:acc*n;steps.push([prev,o,n,acc])}
