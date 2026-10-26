@@ -35,14 +35,14 @@ button.alt{background:#8a8fa8}
 <div id="quiz" class="card hide">
  <button class="alt" id="homeq" style="margin:0 0 12px;padding:8px 14px;font-size:1rem">🏠 Home</button>
  <div class="bar"><i id="prog"></i></div>
- <p id="count"></p><div class="q" id="qtext"></div>
+ <p id="count"></p><div class="q" id="qtext"></div><div id="qsvg" style="text-align:center;margin:4px 0 10px"></div>
  <input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Type your answer">
  <button id="check">Check ✔</button><button id="next" class="hide">Next ➜</button>
  <div id="fb"></div>
 </div>
 <div id="end" class="card hide"><h2 id="score"></h2><div id="stars" class="q"></div><div id="rev" class="rev"></div>
  <button id="again">Try again 🔁</button><button class="alt" id="home">🏠 Home</button></div>
-<p id="ver" style="text-align:center;font-size:.8rem;opacity:.6">Version 6 · text keyboard</p>
+<p id="ver" style="text-align:center;font-size:.8rem;opacity:.6">Version 7 · pictures</p>
 </main>
 <script src="questions.js"></script>
 <script src="textquestions.js"></script>
@@ -78,7 +78,7 @@ function show(id){['menu','quiz','end'].forEach(x=>$(x).classList.toggle('hide',
 $('start').onclick=()=>{const t=+$('term').value,w=+$('week').value,a=+$('act').value;
  begin(shuffle(Q.filter(q=>q.t==t&&q.w==w&&q.a==a)))};
 $('mix').onclick=()=>begin(shuffle(Q).slice(0,10));
-function ask(){$('ans').type='text';$('ans').inputMode='text';const q=set[i];$('count').textContent=`Question ${i+1} of ${set.length}`;
+function ask(){$('ans').type='text';$('ans').inputMode='text';const q=set[i];$('qsvg').innerHTML=q.svg||'';$('count').textContent=`Question ${i+1} of ${set.length}`;
  $('prog').style.width=(i/set.length*100)+'%';$('qtext').textContent=q.txt?q.q:q.q+' = ?';$('qtext').style.fontSize=q.txt?'1.6rem':'';
  $('ans').placeholder='Type your answer';
  $('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
