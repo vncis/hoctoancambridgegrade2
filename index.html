@@ -23,9 +23,9 @@ button.alt{background:#8a8fa8}
 .rev div{padding:6px 0;border-bottom:1px dashed #aab}
 .hide{display:none}
 </style></head><body><main>
-<h1>🧮 Mental Maths</h1>
+<h1>🧮 Mental Maths</h1><p id="warn" class="bad" style="text-align:center"></p>
 <div id="menu" class="card">
- <label>Choose a grade</label><select id="grade"><option value="2">Grade 2 – Mental Maths (by term)</option><option value="2w">Grade 2 – Workbook (by unit)</option><option value="3">Grade 3 – Workbook (by unit)</option><option value="4">Grade 4 – Workbook (by unit)</option></select>
+ <label>Choose a grade</label><select id="grade"><option value="2w">Grade 2 – Workbook (by unit)</option><option value="3">Grade 3 – Workbook (by unit)</option><option value="4">Grade 4 – Workbook (by unit)</option><option value="5">Grade 5 – Workbook (by unit)</option><option value="6">Grade 6 – Workbook (by unit)</option><option value="7">Grade 7 – Workbook (by unit)</option><option value="8">Grade 8 – Workbook (by unit)</option><option value="9">Grade 9 – Workbook (by unit)</option></select>
  <label>Choose a term</label><select id="term"></select>
  <label>Choose a week</label><select id="week"></select>
  <label>Choose an activity</label><select id="act"></select>
@@ -42,23 +42,18 @@ button.alt{background:#8a8fa8}
 </div>
 <div id="end" class="card hide"><h2 id="score"></h2><div id="stars" class="q"></div><div id="rev" class="rev"></div>
  <button id="again">Try again 🔁</button><button class="alt" id="home">🏠 Home</button></div>
-<p id="ver" style="text-align:center;font-size:.8rem;opacity:.6">Version 8 · more pictures</p>
+<p id="ver" style="text-align:center;font-size:.8rem;opacity:.6">Version 9 · grades 2–9</p>
 </main>
-<script src="questions.js"></script>
-<script src="textquestions.js"></script>
-<script src="grade3.js"></script>
-<script src="grade2wb.js"></script>
-<script src="grade4.js"></script>
 <script>
 const $=id=>document.getElementById(id);let Q=[];
-const G2=(typeof QUESTIONS!='undefined'?QUESTIONS:[]).concat((typeof TEXTQ!='undefined'?TEXTQ:[]).map(x=>({...x,txt:1})));
-const G3=typeof QUESTIONS3!='undefined'?QUESTIONS3:[];
-const G4=typeof QUESTIONS4!='undefined'?QUESTIONS4:[];
-const G2W=typeof QUESTIONS2W!='undefined'?QUESTIONS2W:[];
-const missing=[typeof QUESTIONS=='undefined'?'questions.js':'',typeof TEXTQ=='undefined'?'textquestions.js':'',typeof QUESTIONS3=='undefined'?'grade3.js':'',typeof QUESTIONS2W=='undefined'?'grade2wb.js':'',typeof QUESTIONS4=='undefined'?'grade4.js':''].filter(Boolean);
-if(missing.length)document.querySelector('h1').insertAdjacentHTML('afterend','<p class="bad" style="text-align:center">⚠️ Missing file: '+missing.join(', ')+'. Please upload it next to index.html on GitHub.</p>');
+const GR={'2w':['grade2wb.js','QUESTIONS2W'],'3':['grade3.js','QUESTIONS3'],'4':['grade4.js','QUESTIONS4'],'5':['grade5.js','QUESTIONS5'],'6':['grade6.js','QUESTIONS6'],'7':['grade7.js','QUESTIONS7'],'8':['grade8.js','QUESTIONS8'],'9':['grade9.js','QUESTIONS9']};
+const gv=v=>{try{return (0,eval)(v)}catch(e){return undefined}};
+function loadGrade(g,cb){const [f,v]=GR[g];if(gv(v)){cb(gv(v));return}
+ $('warn').textContent='Loading '+f+' …';const sc=document.createElement('script');sc.src=f+'?v=9';
+ sc.onload=()=>{$('warn').textContent='';cb(gv(v)||[])};
+ sc.onerror=()=>{$('warn').textContent='⚠️ Missing file: '+f+'. Please upload it next to index.html on GitHub.'};document.body.appendChild(sc)}
 const uniq=a=>[...new Set(a)].sort((x,y)=>x-y);
-const g3=()=>$('grade').value!=2;
+const g3=()=>true;
 function fill(sel,vals,fmt){sel.innerHTML=vals.map(v=>`<option value="${v}">${fmt(v)}</option>`).join('')}
 function refresh(lvl){
  const t=+$('term').value;
@@ -67,8 +62,8 @@ function refresh(lvl){
  const as=[...new Map(Q.filter(q=>q.t==t&&q.w==w).map(q=>[q.a,q.n])).entries()];
  $('act').innerHTML=as.map(([a,n])=>`<option value="${a}">${g3()?'Exercise '+a+' – ':'Activity '+a+' – '}${n}</option>`).join('');
 }
-function setGrade(){const g=$('grade').value;Q=g=='3'?G3:g=='4'?G4:g=='2w'?G2W:G2;
- fill($('term'),uniq(Q.map(q=>q.t)),v=>g3()?'Unit '+v+' – '+Q.find(q=>q.t==v).tn:v==5?'⭐ Extra: words & facts':'Term '+v);refresh(0)}
+function setGrade(){const g=$('grade').value;loadGrade(g,d=>{if($('grade').value!=g)return;Q=d;
+ fill($('term'),uniq(Q.map(q=>q.t)),v=>'Unit '+v+' – '+Q.find(q=>q.t==v).tn);refresh(0)})}
 $('grade').onchange=setGrade;setGrade();
 $('term').onchange=()=>refresh(0);$('week').onchange=()=>refresh(1);
 let set=[],i=0,res=[];
@@ -84,7 +79,8 @@ function ask(){$('ans').type='text';$('ans').inputMode='text';const q=set[i];$('
  $('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
  $('check').classList.remove('hide');$('next').classList.add('hide');$('ans').focus()}
 function dots(n,e){return n>0&&n<=40?`<div class="dots">${e.repeat(n)}</div>`:''}
-const norm=s=>String(s).toLowerCase().replace(/(^|\s)[-−–](?=\d)/g,'$1neg').replace(/[-–,]/g,' ').replace(/[^a-z0-9 \/.:]/g,'').replace(/\.+$/,'').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
+const SG={'+':'plus','-':'minus','−':'minus','–':'minus','×':'times','x':'times','*':'times','÷':'divide','/':'divide'};
+const norm=s=>{s=String(s).trim().toLowerCase();if(SG[s])return SG[s];return s.replace(/²/g,'2').replace(/³/g,'3').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/>=|≥/g,' ge ').replace(/<=|≤/g,' le ').replace(/>/g,' gt ').replace(/</g,' lt ').replace(/\+/g,' plus ').replace(/(^|\s)[-−–](?=\d)/g,'$1neg').replace(/[-–,]/g,' ').replace(/[^a-z0-9 \/.:]/g,'').replace(/\.+$/,'').replace(/\band\b/g,' ').replace(/\s+/g,'')};
 const shown=q=>q.txt?q.r[0]:q.r;
 function explain(q){
  if(q.e)return `<div class="exp">📘 ${q.e}</div>`;
